@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
     abhaId:{
         type: String,
     },
-    
+
     ethId:{
         type: String,
         required: [true, 'ethereum address is required']
