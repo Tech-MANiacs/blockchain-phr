@@ -21,7 +21,16 @@ const phrSchema = new mongoose.Schema({
         name: String,
         dosage: String,
         frequency: String,
+        StartDate: Date,
+        status: String
+    }],
+    appointment: [{
+        doctorId: String,
         date: Date,
+        diagnosis: String,
+        prescription: String,
+        description: String,
+        status: String,
     }],
     conditions: [{
         type: String
