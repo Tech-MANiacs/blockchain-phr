@@ -9,37 +9,21 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'email is required']
     },
+    abhaId:{
+        type: String,
+    },
+    
+    ethId:{
+        type: String,
+        required: [true, 'ethereum address is required']
+    },
     password:{
         type: String,
         required: [true, 'password is required']
     },
-    batch:{
-        type: Number,
-        required: [true, 'batch is required']
-    },
-    semester:{
-        type: Number,
-        required: [true, 'semester is required']
-    },
-    branch:{
-        type: String,
-        required: [true, 'branch is required']
-    },
-    rollNumber:{
-        type: String,
-        required: [true, 'roll number is required']
-    },
-    phoneNumber:{
-        type: String,
-        required: [true, 'roll number is required']
-    },
-    isAdmin:{
-        type: Boolean,
-        default: false,
-    },
-    isDoctor:{
-        type: Boolean,
-        default: false,
+    phr: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'PHR' // Reference to the PHR model
     },
     notification:{
         type: Array,
@@ -52,3 +36,11 @@ const userSchema = new mongoose.Schema({
 });
 const userModel = mongoose.model("users", userSchema);
 module.exports = userModel;
+
+
+// name:
+// dob:
+// gender:
+// mob:
+// email:
+// address:

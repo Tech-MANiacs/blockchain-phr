@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const doctorSchema = new mongoose.Schema({
-    userId:{
+    doctorId:{
         type:String
     },
     firstName:{
@@ -20,12 +20,13 @@ const doctorSchema = new mongoose.Schema({
         type: String,
         required:[true,'email is required']
     },
-    website:{
+    city:{
         type: String,
+        required:[true,'city is required']
     },
     address:{
         type: String,
-        required:[true,'address is required']
+        required: true
     },
     specialization:{
         type: String,
@@ -35,18 +36,14 @@ const doctorSchema = new mongoose.Schema({
         type: String,
         required:[true,'experience is required']
     },
-    status:{
+    accessList:{
+        type: Array,
+        default: []
+    },
+    password:{
         type: String,
-        default: 'pending'
+        required: [true, 'password is required']
     },
-    timings:{
-        type:Object,
-        required:[true,"Work timing is required"]
-    },
-    DoubtSessionCount:{
-        type: Number,
-        default: 0
-    }
 },
 { timestamps : true}
 );
