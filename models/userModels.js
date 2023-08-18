@@ -12,7 +12,10 @@ const userSchema = new mongoose.Schema({
     abhaId:{
         type: String,
     },
-
+    
+    mobile:{
+        type: String,
+    },
     ethId:{
         type: String,
         required: [true, 'ethereum address is required']
@@ -23,7 +26,8 @@ const userSchema = new mongoose.Schema({
     },
     phr: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'PHR' // Reference to the PHR model
+        ref: 'PHR', // Reference to the PHR model
+        default: null
     },
     notification:{
         type: Array,

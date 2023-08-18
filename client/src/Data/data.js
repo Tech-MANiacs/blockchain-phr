@@ -2,7 +2,7 @@ export const userMenu = [
     {
         id: 0,
         name: "Home",
-        path: '/',
+        path: '/dashboard',
         // icon from fontawesome
         icon: "fa-solid fa-house",
     },
@@ -33,7 +33,7 @@ export const adminMenu = [
     {
         id: 0,
         name: "Home",
-        path: '/',
+        path: '/dashboard',
         // icon from fontawesome
         icon: "fa-solid fa-house",
     },

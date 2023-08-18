@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 // address:
 const abhaSchema = new mongoose.Schema({
     abhaId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         required: [true, "ID is required"],
     },
     name: {
@@ -15,7 +15,7 @@ const abhaSchema = new mongoose.Schema({
         required: [true, "Name is required"]
     },
     dob:{
-        type:Date,
+        type: String,
         required: [true, "DOB is required"]
     },
     gender:{

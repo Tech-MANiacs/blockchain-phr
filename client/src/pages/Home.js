@@ -17,7 +17,7 @@ const Home = () => {
   <div className="absolute inset-0 bg-black/[10%] z-0"></div>
   <div className="w-1/3 h-full pl-11 py-12 relative z-10">
     <Link to="/userPortal">
-      <div className="h-1/4 mb-12 flex shadow-lg backdrop-blur-sm saturate-[171%] bg-[#062155]/[0.71] border-[1px] border-solid border-white/[0.525] rounded-xl cursor-pointer hover:bg-[#062155]/[0.81]">
+      <div className="h-1/4 mb-12 flex shadow-lg backdrop-blur-sm saturate-[171%] bg-[#062155]/[0.71] border-[1px] border-solid border-white/[0.525] rounded-xl cursor-pointer hover:bg-[#062155]/[0.81] transition-colors duration-300">
         <div className="w-3/5 p-4">
           <div className='text-white font-bold text-2xl'>USERS</div>
         </div>
@@ -27,7 +27,7 @@ const Home = () => {
       </div>
     </Link>
     <Link to="/doctorPortal">
-  <div className="h-1/4 mb-12 flex shadow-lg backdrop-blur-sm saturate-[171%] bg-[#062155]/[0.71] border-[1px] border-solid border-white/[0.525] rounded-xl cursor-pointer hover:bg-[#062155]/[0.81]">
+  <div className="h-1/4 mb-12 flex shadow-lg backdrop-blur-sm saturate-[171%] bg-[#062155]/[0.71] border-[1px] border-solid border-white/[0.525] rounded-xl cursor-pointer hover:bg-[#062155]/[0.81] transition-colors duration-300">
     <div className="w-3/5 p-4">
       <div className='text-white font-bold text-2xl'>HEALTHCARE PROFESSIONALS</div>
     </div>
@@ -37,7 +37,7 @@ const Home = () => {
   </div>
 </Link>
 <Link to="/hospitalPortal">
-  <div className="h-1/4 flex shadow-lg backdrop-blur-sm saturate-[171%] bg-[#062155]/[0.71] border-[1px] border-solid border-white/[0.525] rounded-xl cursor-pointer hover:bg-[#062155]/[0.81]">
+  <div className="h-1/4 flex shadow-lg backdrop-blur-sm saturate-[171%] bg-[#062155]/[0.71] border-[1px] border-solid border-white/[0.525] rounded-xl cursor-pointer hover:bg-[#062155]/[0.81] transition-colors duration-300">
     <div className="w-3/5 p-4">
       <div className='text-white font-bold text-2xl'>HEALTHCARE FACILITIES</div>
     </div>

@@ -22,7 +22,7 @@ const Layout = ({ children }) => {
   const doctorMenu = [
     {
       name: "Home",
-      path: "/",
+      path: "/dashboard",
       icon: "fa-solid fa-house",
     },
     {
@@ -94,13 +94,13 @@ const Layout = ({ children }) => {
                   <i class="fa-solid fa-bell"></i>
                 </Badge></div>
 
-                <Link to="/profile" className="font-bold mx-4 text-black lowercase">{user?.name}</Link>
+                <Link to="/userprofile" className="font-bold mx-4 text-black">{user?.name}</Link>
                 <img src="profile.png" className="w-[45px] drop-shadow-md mr-4" />
               </div>
             </div>
             <div className="body">
-              <div className="flex h-full">
-                <div className="h-full w-full rounded-md bg-white shadow-sm p-3">{children}</div> 
+              <div className="h-full">
+                {children}
               </div>
             </div>
               

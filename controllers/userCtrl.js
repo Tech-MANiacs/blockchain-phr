@@ -1,20 +1,34 @@
 const userModel = require('../models/userModels');
 const bcrypt = require('bcryptjs');
 const moment = require('moment');
-
+const abhaModel = require('../models/abhaModel');
+const hospitalModel = require('../models/hospitalModel');
+const phrModel = require('../models/phrModel');
 //we dont want user to login everytime he visits the site, instead we will provide them a token with duration of 1day
 
 const jwt = require('jsonwebtoken');
 const doctorModel = require('../models/doctorModel')
-const appointmentModel = require('../models/appointmentModel');
+// const appointmentModel = require('../models/appointmentModel');
+
+function generateRandomAlphaNumeric(length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+
+  for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      result += characters.charAt(randomIndex);
+  }
+
+  return result;
+}
 
 const registerController = async (req,res) =>{
     try {
         //fist we check if the user is an existing user, if he/she is then redirect them to the login page
-        const existingUser = await userModel.findOne({email: req.body.email});
+        const existingUser = await userModel.findOne({abhaId: req.body.abhaId});
         if(existingUser)
         {
-            return res.status(200).send({success: true, message: 'User with this email already exists'});
+            return res.status(200).send({success: true, message: 'User with this abhaId already exists'});
         }
         //if new user
         //We store password hash in the db.
@@ -29,10 +43,22 @@ const registerController = async (req,res) =>{
 
         //replace original password with this hashed password in the request body and then store it in the database. 
         req.body.password = hashPassword;
+        const abhaObj = await abhaModel.findOne({ abhaId : req.body.abhaId })
 
-
+        const newPHR = new phrModel({
+          dob: abhaObj.dob,
+          // Other fields...
+        });
+        const userData = {
+          abhaId : req.body.abhaId,
+          password : req.body.password,
+          name : abhaObj.name,
+          email : abhaObj.email,
+          ethId : generateRandomAlphaNumeric(10),
+          mobile : abhaObj.mobile
+        }
         //now creating new user using user model
-        const newUser = new userModel(req.body);
+        const newUser = new userModel(userData);
         await newUser.save();
         res.status(201).send({success: true, message: "Registered successfully"});
         
@@ -48,7 +74,13 @@ const loginController = async (req,res) =>{
     try {
 
         //cheching if the user already exists or not
-        const user = await userModel.findOne({email: req.body.email}); 
+        let user;
+        if(req.body.isEmail){
+            user = await userModel.findOne({email: req.body.email});
+        }
+        else {
+            user = await userModel.findOne({mobile: req.body.mobile});
+        }
 
         if(!user){
             return res.status(200).send({message: `user not found!`, success: false});
@@ -221,90 +253,106 @@ const getAllDoctors = async (req, res) => {
     }
   };
   
-  //BOOK APPOINTMENT
-const bookeAppointmnetController = async (req, res) => {
-  try {
-    req.body.date = moment(req.body.date, "DD-MM-YYYY").toISOString();
-    req.body.time = moment(req.body.time, "HH:mm").toISOString();
-    req.body.status = "pending";
-    const newAppointment = new appointmentModel(req.body);
-    await newAppointment.save();
-    const user = await userModel.findOne({ _id: req.body.doctorInfo.userId });
-    user.notification.push({
-      type: "New-appointment-request",
-      message: `A new Appointment Request from ${req.body.userInfo.name}`,
-      onCLickPath: "/user/appointments",
-    });
-    await user.save();
-    res.status(200).send({
-      success: true,
-      message: "Appointment Book succesfully",
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      error,
-      message: "Error While Booking Appointment",
-    });
-  }
-};
+//   //BOOK APPOINTMENT
+// const bookeAppointmnetController = async (req, res) => {
+//   try {
+//     req.body.date = moment(req.body.date, "DD-MM-YYYY").toISOString();
+//     req.body.time = moment(req.body.time, "HH:mm").toISOString();
+//     req.body.status = "pending";
+//     const newAppointment = new appointmentModel(req.body);
+//     await newAppointment.save();
+//     const user = await userModel.findOne({ _id: req.body.doctorInfo.userId });
+//     user.notification.push({
+//       type: "New-appointment-request",
+//       message: `A new Appointment Request from ${req.body.userInfo.name}`,
+//       onCLickPath: "/user/appointments",
+//     });
+//     await user.save();
+//     res.status(200).send({
+//       success: true,
+//       message: "Appointment Book succesfully",
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send({
+//       success: false,
+//       error,
+//       message: "Error While Booking Appointment",
+//     });
+//   }
+// };
 
 // booking bookingAvailabilityController
-const bookingAvailabilityController = async (req, res) => {
-  try {
-    const date = moment(req.body.date, "DD-MM-YY").toISOString();
-    const fromTime = moment(req.body.time, "HH:mm")
-      .subtract(1, "hours")
-      .toISOString();
-    const toTime = moment(req.body.time, "HH:mm").add(1, "hours").toISOString();
-    const doctorId = req.body.doctorId;
-    const appointments = await appointmentModel.find({
-      doctorId,
-      date,
-      time: {
-        $gte: fromTime,
-        $lte: toTime,
-      },
-    });
-    if (appointments.length > 0) {
-      return res.status(200).send({
-        message: "Appointments not Availibale at this time",
-        success: true,
-      });
-    } else {
-      return res.status(200).send({
-        success: true,
-        message: "Appointments available",
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      error,
-      message: "Error In Booking",
-    });
-  }
-};
+// const bookingAvailabilityController = async (req, res) => {
+//   try {
+//     const date = moment(req.body.date, "DD-MM-YY").toISOString();
+//     const fromTime = moment(req.body.time, "HH:mm")
+//       .subtract(1, "hours")
+//       .toISOString();
+//     const toTime = moment(req.body.time, "HH:mm").add(1, "hours").toISOString();
+//     const doctorId = req.body.doctorId;
+//     const appointments = await appointmentModel.find({
+//       doctorId,
+//       date,
+//       time: {
+//         $gte: fromTime,
+//         $lte: toTime,
+//       },
+//     });
+//     if (appointments.length > 0) {
+//       return res.status(200).send({
+//         message: "Appointments not Availibale at this time",
+//         success: true,
+//       });
+//     } else {
+//       return res.status(200).send({
+//         success: true,
+//         message: "Appointments available",
+//       });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send({
+//       success: false,
+//       error,
+//       message: "Error In Booking",
+//     });
+//   }
+// };
 
-const userAppointmentsController = async (req, res) => {
+// const userAppointmentsController = async (req, res) => {
+//   try {
+//     const appointments = await appointmentModel.find({
+//       userId: req.body.userId,
+//     });
+//     res.status(200).send({
+//       success: true,
+//       message: "Users Appointments Fetch SUccessfully",
+//       data: appointments,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send({
+//       success: false,
+//       error,
+//       message: "Error In User Appointments",
+//     });
+//   }
+// };
+
+const checkAbhaId = async (req, res) => {
+  const { abhaId } = req.body;
+  console.log(abhaId);
   try {
-    const appointments = await appointmentModel.find({
-      userId: req.body.userId,
-    });
-    res.status(200).send({
-      success: true,
-      message: "Users Appointments Fetch SUccessfully",
-      data: appointments,
-    });
+      const abha = await abhaModel.findOne({ abhaId : abhaId });
+      if (abha) {
+        return res.json({ exists: true });
+      } else {
+          return res.json({ exists: false });
+      }
   } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      error,
-      message: "Error In User Appointments",
-    });
+      console.error(error);
+      return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -316,7 +364,8 @@ module.exports = {
   getAllNotificationController,
   deleteAllNotificationController,
   getAllDoctors,
-  bookeAppointmnetController,
-  bookingAvailabilityController,
-  userAppointmentsController,
+  checkAbhaId,
+  // bookeAppointmnetController,
+  // bookingAvailabilityController,
+  // userAppointmentsController,
 };

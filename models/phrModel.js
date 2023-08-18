@@ -5,14 +5,13 @@ const phrSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },
-    dateOfBirth: {
-        type: Date,
+    dob: {
+        type: String,
         required: true
     },
     bloodType: {
         type: String,
-        enum: ['A', 'B', 'AB', 'O', 'Unknown'],
-        default: 'Unknown'
+        default: null
     },
     allergies: [{
         type: String

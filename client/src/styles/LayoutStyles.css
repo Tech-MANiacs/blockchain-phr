@@ -4,7 +4,7 @@
 .main{
     padding: 0px;
     height: 100vh;
-    background-color: #f4f4f4;
+    background-color: #e3eafa;
     font-family: 'IBM Plex Sans';
 }
 
@@ -23,7 +23,7 @@
     width: 300px;
     border-radius: 0px;
     background-color: #181c2c;
-    color: black;
+    color: white;
 }
 
 .content{
@@ -53,11 +53,11 @@
     padding: 15px 0px;
     width: 100%;
     margin-bottom: 10px;
-    color: rgb(215, 214, 214);
+    color: white;
 }
 .menu-item:hover {
-    background-color: #352f2f;
-    border-radius: 10px;
+    background-color: #1e3078;
+    border-radius: 5px;
 }
 .menu-item a {
     
@@ -69,17 +69,17 @@
     margin: 0 15px;
 }
 .active {
-    background-color: #352f2f;
+    background-color: #2f50d1;
     color: white;
-    border-radius: 10px;
+    border-radius: 5px;
     width: 100%;
     padding: 15px 0px;
     
 }
 
 .active:hover{
-    background-color: 352f2f;
-    border-radius: 10px;
+    background-color: #1e3078;
+    border-radius: 5px;
 }
 .active a, .active i { 
     color: white;
@@ -103,5 +103,4 @@
     font-size: 1.2rem;
     color: blue;
     margin: 0 10px;
-    text-transform: uppercase;
 }
