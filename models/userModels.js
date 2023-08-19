@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'ethereum address is required']
     },
+    key:{
+        type: String,
+        required: [true, 'secret key is required'],
+    },
     password:{
         type: String,
         required: [true, 'password is required']
