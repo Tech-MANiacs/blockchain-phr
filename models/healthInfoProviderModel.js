@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
-const doctorSchema = new mongoose.Schema({
+const healthInfoProviderSchema = new mongoose.Schema({
     doctorId:{
-        type:String
+        type: String,
     },
     firstName:{
         type: String,
@@ -12,13 +12,13 @@ const doctorSchema = new mongoose.Schema({
         type:String,
         required:[true,'first name is required']
     },
-    ethId:{
+    phone:{
         type: String,
-        required: [true, 'ethereum address is required']
+        required:[true,'phone number is  required']
     },
-    privateKey:{
+    email:{
         type: String,
-        required: [true, 'private key is required'],
+        required:[true,'email is required']
     },
     city:{
         type: String,
@@ -28,18 +28,8 @@ const doctorSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    specialization:{
-        type: String,
-    },
-    experience:{
-        type: String,
-    },
-    accessList:{
-        type: Array,
-        default: []
-    },
-}
+}, { _id: false }
 );
 
-const doctorModel = mongoose.model("doctors", doctorSchema);
-module.exports = doctorModel;
+const healthInfoProviderModel = mongoose.model("healthInfoProvider", healthInfoProviderSchema);
+module.exports = healthInfoProviderModel;

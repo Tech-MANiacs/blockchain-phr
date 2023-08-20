@@ -3,7 +3,7 @@ import "../styles/LayoutStyles.css";
 import { adminMenu, userMenu } from "../Data/data";
 import {useSelector, useDispatch} from 'react-redux';
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Badge, message } from "antd";
+import { message } from "antd";
 import { setUser } from '../redux/features/userSlice';
 const Layout = ({ children }) => {
   const { user } = useSelector((state) => state.user);
@@ -27,14 +27,14 @@ const Layout = ({ children }) => {
     },
     {
       name: "Appointments",
-      path: "/doctor-appointments",
+      path: "/appointment",
       icon: "fa-solid fa-list",
     },
 
     {
         //path is here dynamic
       name: "Profile",
-      path: `/doctor/profile/${user?._id}`,
+      path: `/doctorprofile`,
       icon: "fa-solid fa-user",
     },
   ];
@@ -84,22 +84,12 @@ const Layout = ({ children }) => {
           <div className="content">
             <div className="header items-center flex">
               <div className="header-content w-full">
-                <div className="items-center p-1 pt-2 cursor-pointer px-2 rounded-md hover:bg-gray-200">
-                <Badge
-                  count={user && user.notification.length}
-                  onClick={() => {
-                    navigate("/notification");
-                  }}
-                >
-                  <i class="fa-solid fa-bell"></i>
-                </Badge></div>
-
                 <Link to="/userprofile" className="font-bold mx-4 text-black">{user?.name}</Link>
                 <img src="profile.png" className="w-[45px] drop-shadow-md mr-4" />
               </div>
             </div>
             <div className="body">
-              <div className="h-full">
+              <div className="h-full overflow-y-scroll">
                 {children}
               </div>
             </div>

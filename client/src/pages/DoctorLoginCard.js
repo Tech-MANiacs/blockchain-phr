@@ -6,7 +6,7 @@ import {showLoading,hideLoading} from '../redux/features/alertSlice';
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
 
-const UserLoginCard = ({toggleCard}) => {
+const DoctorLoginCard = ({toggleCard}) => {
    
     const navigate = useNavigate();
     const emailRef = useRef();
@@ -21,19 +21,19 @@ const UserLoginCard = ({toggleCard}) => {
             setEmailValue('');
             setIsEmail(true);
         } else if (type === 'mobile') {
-            setMobileValue('');
+            setPhoneValue('');
             setIsEmail(false);
         }
     };
 
     const [emailValue, setEmailValue] = useState('');
-    const [mobileValue, setMobileValue] = useState('');
+    const [mobileValue, setPhoneValue] = useState('');
 
     const handleInputChange = (e) => {
         if (isEmail) {
             setEmailValue(e.target.value);
         } else {
-            setMobileValue(e.target.value);
+            setPhoneValue(e.target.value);
         }
     };
 
@@ -54,7 +54,7 @@ const UserLoginCard = ({toggleCard}) => {
             }
 
             console.log(formData);
-            const res = await axios.post('/api/v1/user/login', formData);
+            const res = await axios.post('/api/v1/doctor/login', formData);
             dispatch(hideLoading());
 
             if (res.data.success) {
@@ -79,11 +79,11 @@ const UserLoginCard = ({toggleCard}) => {
             </div>
             
 
-            <div className="bg-blue-200 rounded-xl flex mx-8 mb-8 font-semibold space-x-1">
+            <div className="bg-green-500 rounded-xl flex mx-8 mb-8 font-semibold space-x-1">
                 <div className="flex m-1 w-full space-x-1">
                     <div
                         className={`w-1/2 flex justify-center rounded-lg py-1 transition-colors duration-300 items-center cursor-pointer ${
-                            isEmail ? 'bg-white' : 'hover:bg-blue-300'
+                            isEmail ? 'bg-white' : 'hover:bg-green-600'
                         }`}
                         onClick={() => handleToggleInput('email')}
                     >
@@ -91,7 +91,7 @@ const UserLoginCard = ({toggleCard}) => {
                     </div>
                     <div
                         className={`w-1/2 flex justify-center rounded-lg py-1 transition-colors duration-300 items-center cursor-pointer ${
-                            isEmail ? 'hover:bg-blue-300' : 'bg-white hover:bg-blue-100'
+                            isEmail ? 'hover:bg-green-600' : 'bg-white hover:bg-green-100'
                         }`}
                         onClick={() => handleToggleInput('mobile')}
                     >
@@ -141,7 +141,7 @@ const UserLoginCard = ({toggleCard}) => {
                 <div className="flex items-center justify-between px-8">
                 <div className='items-center flex'>
                     <a
-                    className=" items-`center` font-bold text-sm text-blue-400 hover:text-blue-700"
+                    className=" items-`center` font-bold text-sm text-blue-300 hover:text-white"
                     href="/"
                     >
                     Forgot Password?
@@ -161,4 +161,4 @@ const UserLoginCard = ({toggleCard}) => {
   )
 }
 
-export default UserLoginCard
+export default DoctorLoginCard

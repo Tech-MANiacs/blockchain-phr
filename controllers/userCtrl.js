@@ -1,30 +1,17 @@
-const userModel = require('../models/userModels');
-const crypto = require('crypto');
+const crypto   = require('crypto');
 const mongoose = require('mongoose');
-const encrypPhrModel = require('../models/encrypPhrModel')
-const bcrypt = require('bcryptjs');
-const moment = require('moment');
+const bcrypt   = require('bcryptjs');
+const moment   = require('moment');
+const jwt      = require('jsonwebtoken');
+const ethers   = require('ethers');
+
+const userModel = require('../models/userModels');
 const abhaModel = require('../models/abhaModel');
-const hospitalModel = require('../models/hospitalModel');
-const phrModel = require('../models/phrModel');
-//we dont want user to login everytime he visits the site, instead we will provide them a token with duration of 1day
-
-const jwt = require('jsonwebtoken');
+const patientModel = require('../models/patientModel');
+const healthInfoProviderModel = require('../models/healthInfoProviderModel');
 const doctorModel = require('../models/doctorModel')
-// const appointmentModel = require('../models/appointmentModel');
-
-function generateRandomAlphaNumeric(length) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    result += characters.charAt(randomIndex);
-  }
-
-  return result;
-}
-
+const hospitalModel = require('../models/hospitalModel');
+const encryptPhrModel = require('../models/encryptPhrModel');
 
 const generateKeyFromPassword = async (userPassword) => {
   return new Promise((resolve, reject) => {
@@ -52,23 +39,43 @@ const encryptKey = async (secretKey, masterKey) => {
   const iv = crypto.randomBytes(16); // 16 bytes (128 bits) for AES-CTR
 
   // Creating a cipher for encrypting the key using AES-CTR
+  console.log(masterKey);
   const cipher = crypto.createCipheriv('aes-256-ctr', Buffer.from(masterKey, 'hex'), iv);
 
   // Encrypting the key
   const encryptedKey = Buffer.concat([cipher.update(keyToEncrypt, 'utf-8'), cipher.final()]);
 
   const encryptedData = Buffer.concat([iv, encryptedKey]);
-  return encryptedData;
+  console.log("buffer form", encryptedData);
+  return encryptedData.toString('hex');
 }
 
+const decryptKey = (encryptedData, masterKey) => {
+  console.log(encryptedData);
+  const loadedEncryptedData = Buffer.from(encryptedData, 'hex');
+  console.log("buffer form decrypted", loadedEncryptedData);
+  // Extract IV and encrypted key from the loaded data
+  const loadedIv = loadedEncryptedData.subarray(0, 16);
+  const loadedEncryptedKey = loadedEncryptedData.subarray(16);
 
+  // Create a decipher for decrypting the key using AES-CTR
+  const decipher = crypto.createDecipheriv('aes-256-ctr', Buffer.from(masterKey, 'hex'), loadedIv);
+
+  // Decrypt the key
+  let decryptedKeyBuffer = decipher.update(loadedEncryptedKey);
+  decryptedKeyBuffer = Buffer.concat([decryptedKeyBuffer, decipher.final()]);
+  console.log("decrypted buff", decryptedKeyBuffer);
+  const decryptedKey = decryptedKeyBuffer.toString('utf-8');
+
+  return decryptedKeyBuffer;
+}
 
 const registerController = async (req, res) => {
   try {
     //fist we check if the user is an existing user, if he/she is then redirect them to the login page
-    const existingUser = await userModel.findOne({ abhaId: req.body.abhaId });
+    const existingUser = await patientModel.findOne({ abhaId: req.body.abhaId });
     if (existingUser) {
-      return res.status(200).send({ success: true, message: 'User with this abhaId already exists' });
+      return res.status(200).send({ success: true, message: 'User with this ABHA ID already exists' });
     }
     //if new user
     //We store password hash in the db.
@@ -76,10 +83,10 @@ const registerController = async (req, res) => {
 
     //Generating user's unique secret key from their password
     const derivedKey = await generateKeyFromPassword(password);
-
+    console.log("derived", derivedKey);
     //encrypting their key before saving it in database
     const encryptedKey = await encryptKey(derivedKey, process.env.MASTER_KEY);
-
+    console.log("encrypted key", encryptedKey);
     //To ecrypt password i.e take hash we use bcrypt salt (read its doc)
     //this parameter denotes the number of roundes, more the roundes more time it will take to take hash 
     const salt = await bcrypt.genSalt(10);
@@ -90,22 +97,38 @@ const registerController = async (req, res) => {
     req.body.password = hashPassword;
     const abhaObj = await abhaModel.findOne({ abhaId: req.body.abhaId })
 
-    const newPHR = new phrModel({
-      dob: abhaObj.dob,
-      // Other fields...
-    });
     const userData = {
-      abhaId: req.body.abhaId,
-      password: req.body.password,
-      name: abhaObj.name,
-      email: abhaObj.email,
-      ethId: generateRandomAlphaNumeric(10),
-      key: encryptedKey,
-      mobile: abhaObj.mobile
+      password : req.body.password,
+      email : abhaObj.email,
+      mobile : abhaObj.mobile,
+      isUser : true
     }
-    //now creating new user using user model
+
     const newUser = new userModel(userData);
     await newUser.save();
+
+    // Generate a new Ethereum wallet
+    const wallet = ethers.Wallet.createRandom();
+
+    // Get the address and private key
+    const ethereumAddress = wallet.address;
+    const privateKey = wallet.privateKey;
+    console.log(privateKey);
+    const encryptedPrivateKey = await encryptKey(privateKey, process.env.MASTER_KEY);
+
+    const patientData = {
+      _id : newUser._id,
+      abhaId: req.body.abhaId,
+      name: abhaObj.name,
+      ethId: ethereumAddress,
+      key: encryptedKey,
+      privateKey: encryptedPrivateKey
+    }
+    //now creating new user using user model
+    
+    const newPatient = new patientModel(patientData);
+    await newPatient.save();
+
     res.status(201).send({ success: true, message: "Registered successfully" });
 
   } catch (error) {
@@ -161,31 +184,39 @@ const loginController = async (req, res) => {
 //this function will be called only when the authMiddleware function runs successfuly. In the authMiddleware function, we are just checking the authenticity of the token and if the token is correct, we add the _id of the token on with it was signed to the request body.
 //Now in this function we check using that id in the req which we added if any user with that id exists in the database or not
 
-const authController = async (req, res) => {
+const authController = async(req,res) => {
   try {
-    //finding user in the database with the userId which we created in the req.body in the authMiddleware
-    const user = await userModel.findById({ _id: req.body.userId });
-    //we dont want to return password to the browser, so will hide it after fetching it from the database
-    user.password = undefined;
-    if (!user) {
-      return res.status(200).send({ message: "User not found", success: false });
-    }
+      //finding user in the database with the userId which we created in the req.body in the authMiddleware
+      const user = await userModel.findById({_id: req.body.userId});
+      //we dont want to return password to the browser, so will hide it after fetching it from the database
+      user.password = undefined;
+      
+      let user2 = null;
+      if(user.isUser){
+        user2 = await patientModel.findById({_id: req.body.userId});
+      }
+      else if(user.isDoctor){
+        user2 = await doctorModel.findById({_id: req.body.userId});
+      }
+      const mergedUser = {...user.toObject(), ...user2.toObject()};
+      if(!user){
+          return res.status(200).send({message:"User not found", success:false});
+      }
 
-
-    //sending every data about the user from the database to the frontend
-    else {
-      res.status(200).send({
-        success: true,
-        data: user,
-      });
-    }
+      
+      //sending every data about the user from the database to the frontend
+      else{
+          res.status(200).send({
+              success:true,
+              data: mergedUser,
+          });
+      }
 
   } catch (error) {
-    console.log(error);
-    res.status(500).send({ message: "Auth failed", success: false, error });
+      console.log(error);
+      res.status(500).send({message: "Auth failed", success: false, error});
   }
 }
-
 
 //apply doctor ctrl 
 const applyDoctorController = async (req, res) => {
@@ -405,6 +436,7 @@ const checkAbhaId = async (req, res) => {
 //function to encrypt data:
 const encryptData = (derivedKey, sampleData) => {
   // array to hold encrypted fields and their IVs
+  console.log(derivedKey);
   const encryptedFieldsArray = [];
 
   // Encrypting each field and storing its field name, IV, and encrypted data
@@ -453,24 +485,7 @@ function decryptData(derivedKey, encryptedFieldsArray) {
   return decryptedData;
 }
 
-const decryptKey = (encryptedData, masterKey) => {
-  const loadedEncryptedData = encryptedData;
 
-  // Extract IV and encrypted key from the loaded data
-  const loadedIv = loadedEncryptedData.subarray(0, 16);
-  const loadedEncryptedKey = loadedEncryptedData.subarray(16);
-
-  // Create a decipher for decrypting the key using AES-CTR
-  const decipher = crypto.createDecipheriv('aes-256-ctr', Buffer.from(masterKey, 'hex'), loadedIv);
-
-  // Decrypt the key
-  let decryptedKeyBuffer = decipher.update(loadedEncryptedKey);
-  decryptedKeyBuffer = Buffer.concat([decryptedKeyBuffer, decipher.final()]);
-
-  const decryptedKey = decryptedKeyBuffer.toString('utf-8');
-
-  return decryptedKey;
-}
 
 const hashEncryptedFieldsArray = (encryptedFieldsArray) => {
   // Serialize the encryptedFieldsArray to JSON
@@ -499,6 +514,7 @@ const storePhr = async (req, res) => {
           message: "user not registered",
         });
     }
+    const patient = await patientModel.findById(req.body.userId);
     //excluding userId, rest of the data belong to phr
     const data = { ...req.body };
     delete data.userId;
@@ -508,19 +524,19 @@ const storePhr = async (req, res) => {
 
     //ecrypted key from database
 
-    const decryptedKey = decryptKey(user.key, masterKey);
+    const decryptedKey = decryptKey(patient.key, masterKey);
 
     //encrypting data:
     const encryptedFieldsArray = encryptData(decryptedKey, data);
     // Create a new PHR document with encrypted fields
-    const phrData = new encrypPhrModel({
-      userId: mongoose.Types.ObjectId(),
+    const phrData = new encryptPhrModel({
       encryptedFields: encryptedFieldsArray,
     });
 
-    user.phr = phrData.userId;
+    //console.log("phrData", phrData);
+    patient.phrId = phrData._id;
 
-    await user.save();
+    await patient.save();
     // Save the PHR document
     await phrData.save();
 
@@ -539,21 +555,21 @@ const storePhr = async (req, res) => {
       message: 'An error occurred while saving PHR data',
     });
   }
-
 }
 
 const fetchPhr = async (req, res) => {
 
   try {
-    const user = await userModel.findById(req.userId);
-    const phrId = user.phr;
+    const patient = await patientModel.findById(req.userId);
+
+    const phrId = patient.phrId;
 
     //user's secret key in encrypted form
-    const encryptedKey = user.key;
+    const encryptedKey = patient.key;
     //decrypted secret key
     const secretKey = decryptKey(encryptedKey, process.env.MASTER_KEY);
 
-    const encPhr = await encrypPhrModel.findById(phrId);
+    const encPhr = await encryptPhrModel.findById(phrId);
 
     //encrypted phr data of user
     const encPhrData = encPhr.encryptedFields;

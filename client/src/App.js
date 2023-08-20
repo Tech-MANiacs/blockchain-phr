@@ -1,21 +1,19 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage';
-import Login from './pages/Login';
-import Register from './pages/Register';
 import { useSelector } from 'react-redux';
 import Spinner from './components/Spinner';
 import ProtectedRoute from './components/ProtectedRoute';
-import PublicRoute from './components/PublicRoute';
 import ApplyDoctor from './pages/ApplyDoctor';
 import NotificationPage from './pages/NotificationPage';
 import Users from './pages/admin/Users';
 import Doctors from './pages/admin/Doctors';
 import Profile from './pages/doctor/Profile';
 import BookingPage from './pages/BookingPage';
-import Appointments from './pages/Appointments';
 import DoctorAppointments from './pages/doctor/DoctorAppointments';
 import UserProfile from './pages/UserProfile';
 import LandingPage from './pages/LandingPage';
+import AccessManagement from './pages/AccessManagement';
+import DoctorProfile from './pages/DoctorProfile';
 function App() {
   //getting the boolean from the store
 
@@ -75,25 +73,20 @@ function App() {
               </ProtectedRoute>
             } />
             
-            <Route path="/login" element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
+            <Route path="/doctorprofile" element={
+              <ProtectedRoute>
+                <DoctorProfile />
+              </ProtectedRoute>
             } />
             <Route path="/*" element={
              
                 <LandingPage />
               
             } />
-            <Route path="/register" element={
-              <PublicRoute>
-                <Register />
-              </PublicRoute>
-            } />
             
-            <Route path="/appointments" element={
+            <Route path="/accessManagement" element={
               <ProtectedRoute>
-                <Appointments />
+                <AccessManagement />
               </ProtectedRoute>
             } />
             <Route path="/doctor-appointments" element={

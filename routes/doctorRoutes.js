@@ -3,6 +3,9 @@ const {
   getDoctorInfoController,
   updateProfileController,
   getDoctorByIdController,
+  checkDoctorId,
+  registerController,
+  loginController
   // doctorAppointmentsController,
   // updateStatusController,
 } = require("../controllers/doctorCtrl");
@@ -18,6 +21,11 @@ router.post("/updateProfile", authMiddleware, updateProfileController);
 //POST GET SINGLE MENTOR INFO
 router.post("/getDoctorById", authMiddleware, getDoctorByIdController);
 
+router.post('/check-doctorid', checkDoctorId);
+
+router.post('/register', registerController);
+
+router.post('/login', loginController);
 // //GET Appointments
 // router.get(
 //   "/doctor-appointments",

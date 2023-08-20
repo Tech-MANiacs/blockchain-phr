@@ -10,6 +10,8 @@ const {loginController,
     deleteAllNotificationController,
     getAllDoctors,
     checkAbhaId,
+    storePhr,
+    fetchPhr,
     // bookeAppointmnetController,
     //bookingAvailabilityController,
     // userAppointmentsController
@@ -52,6 +54,7 @@ router.get('/getAllDoctors', authMiddleware, getAllDoctors)
 
 router.post('/check-abhaid', checkAbhaId);
 
+router.post('/storephr', storePhr);
 // //BOOK APPOINTMENT
 // router.post('/book-appointment', authMiddleware, bookeAppointmnetController);
 

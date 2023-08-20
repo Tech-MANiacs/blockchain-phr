@@ -8,8 +8,8 @@ export const userMenu = [
     },
     {
         id: 1,
-        name: "Appointments",
-        path:'/appointments',
+        name: "Access Management",
+        path:'/accessManagement',
         icon:"fa-solid fa-list",
     },
     {

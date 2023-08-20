@@ -16,10 +16,11 @@ const encryptedFieldSchema = new mongoose.Schema({
 });
 
 const phrSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-    },
+    // userId: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     required: true,
+    //     default: mongoose.Types.ObjectId // Generate a new ObjectId as the default value
+    // },
     encryptedFields: [encryptedFieldSchema],
     createdAt: {
         type: Date,
