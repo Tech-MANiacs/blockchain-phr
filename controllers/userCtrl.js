@@ -98,10 +98,10 @@ const registerController = async (req, res) => {
     const abhaObj = await abhaModel.findOne({ abhaId: req.body.abhaId })
 
     const userData = {
-      password : req.body.password,
-      email : abhaObj.email,
-      mobile : abhaObj.mobile,
-      isUser : true
+      password: req.body.password,
+      email: abhaObj.email,
+      mobile: abhaObj.mobile,
+      isUser: true
     }
 
     const newUser = new userModel(userData);
@@ -117,7 +117,7 @@ const registerController = async (req, res) => {
     const encryptedPrivateKey = await encryptKey(privateKey, process.env.MASTER_KEY);
 
     const patientData = {
-      _id : newUser._id,
+      _id: newUser._id,
       abhaId: req.body.abhaId,
       name: abhaObj.name,
       ethId: ethereumAddress,
@@ -125,7 +125,7 @@ const registerController = async (req, res) => {
       privateKey: encryptedPrivateKey
     }
     //now creating new user using user model
-    
+
     const newPatient = new patientModel(patientData);
     await newPatient.save();
 
@@ -184,37 +184,37 @@ const loginController = async (req, res) => {
 //this function will be called only when the authMiddleware function runs successfuly. In the authMiddleware function, we are just checking the authenticity of the token and if the token is correct, we add the _id of the token on with it was signed to the request body.
 //Now in this function we check using that id in the req which we added if any user with that id exists in the database or not
 
-const authController = async(req,res) => {
+const authController = async (req, res) => {
   try {
-      //finding user in the database with the userId which we created in the req.body in the authMiddleware
-      const user = await userModel.findById({_id: req.body.userId});
-      //we dont want to return password to the browser, so will hide it after fetching it from the database
-      user.password = undefined;
-      
-      let user2 = null;
-      if(user.isUser){
-        user2 = await patientModel.findById({_id: req.body.userId});
-      }
-      else if(user.isDoctor){
-        user2 = await doctorModel.findById({_id: req.body.userId});
-      }
-      const mergedUser = {...user.toObject(), ...user2.toObject()};
-      if(!user){
-          return res.status(200).send({message:"User not found", success:false});
-      }
+    //finding user in the database with the userId which we created in the req.body in the authMiddleware
+    const user = await userModel.findById({ _id: req.body.userId });
+    //we dont want to return password to the browser, so will hide it after fetching it from the database
+    user.password = undefined;
 
-      
-      //sending every data about the user from the database to the frontend
-      else{
-          res.status(200).send({
-              success:true,
-              data: mergedUser,
-          });
-      }
+    let user2 = null;
+    if (user.isUser) {
+      user2 = await patientModel.findById({ _id: req.body.userId });
+    }
+    else if (user.isDoctor) {
+      user2 = await doctorModel.findById({ _id: req.body.userId });
+    }
+    const mergedUser = { ...user.toObject(), ...user2.toObject() };
+    if (!user) {
+      return res.status(200).send({ message: "User not found", success: false });
+    }
+
+
+    //sending every data about the user from the database to the frontend
+    else {
+      res.status(200).send({
+        success: true,
+        data: mergedUser,
+      });
+    }
 
   } catch (error) {
-      console.log(error);
-      res.status(500).send({message: "Auth failed", success: false, error});
+    console.log(error);
+    res.status(500).send({ message: "Auth failed", success: false, error });
   }
 }
 
@@ -484,8 +484,6 @@ function decryptData(derivedKey, encryptedFieldsArray) {
   // Here, you can return the decryptedData object or use it as needed
   return decryptedData;
 }
-
-
 
 const hashEncryptedFieldsArray = (encryptedFieldsArray) => {
   // Serialize the encryptedFieldsArray to JSON
