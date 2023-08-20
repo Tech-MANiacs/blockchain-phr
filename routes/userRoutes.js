@@ -55,6 +55,8 @@ router.get('/getAllDoctors', authMiddleware, getAllDoctors)
 router.post('/check-abhaid', checkAbhaId);
 
 router.post('/storephr', storePhr);
+
+router.get('/fetchphr', fetchPhr);
 // //BOOK APPOINTMENT
 // router.post('/book-appointment', authMiddleware, bookeAppointmnetController);
 

@@ -24,6 +24,14 @@ const doctorSchema = new mongoose.Schema({
         type: String,
         required:[true,'city is required']
     },
+    mobile:{
+        type: String,
+        required:[true,'mobile number is  required']
+    },
+    email:{
+        type: String,
+        required:[true,'email is required']
+    },
     address:{
         type: String,
         required: true

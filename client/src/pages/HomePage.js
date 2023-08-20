@@ -6,12 +6,20 @@ import {useSelector} from 'react-redux'
 import * as Yup from 'yup';
 import MedicalRecord from "./MedicalRecord";
 import {contract} from '../web3';
+import DoctorSearch from "./DoctorSearch";
 
 const HomePage = () => {
   const {user} = useSelector(state=>state.user)
 
-  const doSomething = async() =>{
-    const as = await contract.CheckAscess("0x82cEBa1FF70BcC327c44BF0ecf1e2201cFe10945", "0x343Beb5D63dac9eF2892a97d8391eef9fAb6b50F");
+  const giveAccess = async() =>{
+    console.log(user.ethId);
+    const tx = await contract.giveAccess(user.ethId);
+    console.log(tx);
+  }
+
+  const checkMyAccess = async() =>{
+    console.log(user.ethId);
+    const as = await contract.checkAccess(user.ethId, user.ethId);
     console.log(as);
     // const tx = await contract.giveAscess("0x343Beb5D63dac9eF2892a97d8391eef9fAb6b50F");
   }
@@ -59,10 +67,31 @@ const HomePage = () => {
   return (
     <Layout>
       {
-        user && user.isUser === true && user.phrId === null ? <MedicalRecord /> : 
-        <div className="font-semibold">
-          <div className="bg-blue-500 rounded-md px-2 py-1 text-lg text-white font-semibold cursor-pointer" onClick={doSomething}>CONNECT</div>
-        </div>
+          user && user.isUser === true && user.phrId === null ? (
+            <>
+              {/* Components or content for the true condition */}
+              <MedicalRecord />
+              {/* Add more components or content here */}
+            </>
+          ) : (
+            <>
+              <div className="flex space-x-4">
+              {/* Components or content for the false condition */}
+                <div className=" overflow-y-scroll w-[60%] rounded-xl bg-white shadow-sm">
+                  <DoctorSearch />
+                </div>
+                <div className="h-[50vh] w-[40%] rounded-xl bg-white shadow-sm">
+                  <div className="mt-2 mx-2 bg-blue-600 rounded-full cursor-pointer w-fit text-white font-semibold px-2 py-1" onClick={giveAccess}>Give Access</div>
+                  <div className="mt-2 mx-2 bg-blue-600 rounded-full cursor-pointer w-fit text-white font-semibold px-2 py-1" onClick={checkMyAccess}>Check My Access</div>
+                  <div className="mt-2 mx-2 bg-blue-600 rounded-full cursor-pointer w-fit text-white font-semibold px-2 py-1" onClick={() => console.log(user.ethId)}>What is my Eth Id</div>
+                </div>
+              </div>
+              {/* Add more components or content here */}
+            </>
+          )
+        // <div className="font-semibold">
+        //   <div className="bg-blue-500 rounded-md px-2 py-1 text-lg text-white font-semibold cursor-pointer" onClick={doSomething}>CONNECT</div>
+        // </div>
       }
       
       

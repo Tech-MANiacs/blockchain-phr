@@ -12,7 +12,7 @@ const healthInfoProviderSchema = new mongoose.Schema({
         type:String,
         required:[true,'first name is required']
     },
-    phone:{
+    mobile:{
         type: String,
         required:[true,'phone number is  required']
     },
@@ -27,6 +27,14 @@ const healthInfoProviderSchema = new mongoose.Schema({
     address:{
         type: String,
         required: true
+    },
+    specialization:{
+        type: String,
+        default: ''
+    },
+    experience:{
+        type: String,
+        default: ''
     },
 }, { _id: false }
 );

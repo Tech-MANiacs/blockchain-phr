@@ -1,7 +1,7 @@
 
 const ethers = require('ethers');
 
-const contractAddress = "0x56c35B7E7e35a5be8C39C3e69c555F497b43A827";
+const contractAddress = "0xFe578b25Eb1Cb94cD7Dc9e7fBe9f8c95F464f1e9";
 const contractAbi = [
 	{
 		"constant": false,
@@ -11,7 +11,7 @@ const contractAbi = [
 				"type": "address"
 			}
 		],
-		"name": "giveAscess",
+		"name": "giveAccess",
 		"outputs": [
 			{
 				"name": "success",
@@ -27,6 +27,29 @@ const contractAbi = [
 		"inputs": [
 			{
 				"name": "_address",
+				"type": "address"
+			}
+		],
+		"name": "revokeAccess",
+		"outputs": [
+			{
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_address1",
+				"type": "address"
+			},
+			{
+				"name": "_address2",
 				"type": "address"
 			},
 			{
@@ -34,44 +57,7 @@ const contractAbi = [
 				"type": "string"
 			}
 		],
-		"name": "hashData",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_address",
-				"type": "address"
-			}
-		],
-		"name": "RevokeAscess",
-		"outputs": [
-			{
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "id",
-				"type": "string"
-			},
-			{
-				"name": "key",
-				"type": "string"
-			}
-		],
-		"name": "sendId",
+		"name": "sendHash",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -89,7 +75,7 @@ const contractAbi = [
 				"type": "address"
 			}
 		],
-		"name": "check",
+		"name": "checkAccess",
 		"outputs": [
 			{
 				"name": "val",
@@ -112,14 +98,10 @@ const contractAbi = [
 				"type": "address"
 			}
 		],
-		"name": "CheckAscess",
+		"name": "returnHash",
 		"outputs": [
 			{
-				"name": "data_id",
-				"type": "string"
-			},
-			{
-				"name": "sym_key",
+				"name": "hash",
 				"type": "string"
 			}
 		],
@@ -133,13 +115,23 @@ const provider = new ethers.BrowserProvider(window.ethereum);
 await provider.send("eth_requestAccounts", []);
 const signer = await provider.getSigner();
 export const contract  = new ethers.Contract(contractAddress, contractAbi, signer);
-//export const contract =  new ethers.Contract(contractAddress, contractAbi, provider);
-
-//const tx = await contract.giveAscess(address); // doctor address called by patient
-//const tx = await contract.revokeAscess(address); // " "  "
-//const tx = await contract.sendId(data_id, key);  // all in string
-//const tx = await contract.hashData(patient_address, hashed_data);
 
 
-//const result = await contract.CheckAscess(patient_addr, doctor_addr);  // no etherr used (view function)
-// adress should be any string 
+
+
+// all addresses should be valid as well as should be called as a string for eg. "0xFe578b25Eb1Cb94cD7Dc9e7fBe9f8c95F464f1e9"
+
+
+//const tx = await contract.giveAccess(address); // giving access to doctor or patient ethereum address
+
+//const tx = await contract.revokeAccess(address); // revoking access ...
+
+//const result = await contract.checkAccess(address patient , address doctor);  // checking access ...
+
+//const tx = await contract.sendHash(address patient, address doctor, hash);  // sending hashed data of patient
+																		      // it will do nothing if not given access		
+																			  
+//const result = await contract.returnHash(adress patient, address doctor);  // returning hashed data of patient
+																			 // "-1" if not given access
+																			 // empty if not present
+

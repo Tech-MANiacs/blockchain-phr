@@ -5,7 +5,8 @@ const {
   getDoctorByIdController,
   checkDoctorId,
   registerController,
-  loginController
+  loginController,
+  getDoctors
   // doctorAppointmentsController,
   // updateStatusController,
 } = require("../controllers/doctorCtrl");
@@ -26,6 +27,8 @@ router.post('/check-doctorid', checkDoctorId);
 router.post('/register', registerController);
 
 router.post('/login', loginController);
+
+router.get('/getdoctors', getDoctors);
 // //GET Appointments
 // router.get(
 //   "/doctor-appointments",

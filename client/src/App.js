@@ -14,6 +14,7 @@ import UserProfile from './pages/UserProfile';
 import LandingPage from './pages/LandingPage';
 import AccessManagement from './pages/AccessManagement';
 import DoctorProfile from './pages/DoctorProfile';
+import AddRecord from './pages/AddRecord';
 function App() {
   //getting the boolean from the store
 
@@ -89,6 +90,13 @@ function App() {
                 <AccessManagement />
               </ProtectedRoute>
             } />
+
+            <Route path="/addRecord" element={
+              <ProtectedRoute>
+                <AddRecord />
+              </ProtectedRoute>
+            } />
+
             <Route path="/doctor-appointments" element={
               <ProtectedRoute>
                 <DoctorAppointments />

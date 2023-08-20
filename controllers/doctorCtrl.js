@@ -22,19 +22,17 @@ function generateRandomAlphaNumeric(length) {
 const encryptKey = async (secretKey, masterKey) => {
   // Key to be encrypted
   const keyToEncrypt = secretKey;
-  console.log("secret key: ", keyToEncrypt);
   // Generating a random initialization vector (IV)
   const iv = crypto.randomBytes(16); // 16 bytes (128 bits) for AES-CTR
 
   // Creating a cipher for encrypting the key using AES-CTR
-  console.log(masterKey);
   const cipher = crypto.createCipheriv('aes-256-ctr', Buffer.from(masterKey, 'hex'), iv);
 
   // Encrypting the key
   const encryptedKey = Buffer.concat([cipher.update(keyToEncrypt, 'utf-8'), cipher.final()]);
 
   const encryptedData = Buffer.concat([iv, encryptedKey]);
-  return encryptedData;
+  return encryptedData.toString('hex');
 }
 
 const registerController = async (req,res) =>{
@@ -82,6 +80,8 @@ const registerController = async (req,res) =>{
           doctorId : req.body.doctorId,
           firstName : doctorObj.firstName,
           lastName : doctorObj.lastName,
+          email : doctorObj.email,
+          mobile : doctorObj.mobile,
           ethId : ethereumAddress,
           privateKey : encryptedPrivateKey,
           city : doctorObj.city,
@@ -269,13 +269,31 @@ const checkDoctorId = async (req, res) => {
   }
 };
 
+const getDoctors = async (req, res) => {
+  try {
+    const { firstName } = req.query;
+
+    if (!firstName) {
+      return res.status(400).json({ message: 'First name is required' });
+    }
+
+    const doctors = await doctorModel.find({ firstName: { $regex: firstName, $options: 'i' } });
+    
+    return res.status(200).json(doctors);
+  } catch (error) {
+    console.error('Error fetching doctors:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getDoctorInfoController,
   updateProfileController,
   getDoctorByIdController,
   checkDoctorId,
   registerController,
-  loginController
+  loginController,
+  getDoctors
   // doctorAppointmentsController,
   // updateStatusController,
 };

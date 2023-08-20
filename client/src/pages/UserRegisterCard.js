@@ -6,6 +6,7 @@ import {showLoading,hideLoading} from '../redux/features/alertSlice';
 import axios from 'axios';
 import { useNavigate} from 'react-router-dom';
 import { Spinner } from "@material-tailwind/react";
+import {contract} from '../web3';
 
 const UserRegisterCard = ({toggleCard}) => {
    
@@ -73,6 +74,9 @@ const UserRegisterCard = ({toggleCard}) => {
             if(res.data.success)
             {
                 message.success(res.data.message);
+                console.log(res.data.ethId);
+                const tx = await contract.giveAccess(res.data.ethId);
+                console.log(tx);
                 navigate('/userPortal');
             }
             else{

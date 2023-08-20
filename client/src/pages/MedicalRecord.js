@@ -7,6 +7,7 @@ import * as Yup from 'yup';
 import {useDispatch} from 'react-redux';
 import {showLoading,hideLoading} from '../redux/features/alertSlice';
 import { message } from 'antd';
+import {contract} from '../web3';
 
 const initialValues = {
   bloodType: '',
@@ -75,6 +76,9 @@ const MedicalRecord = () => {
           if(res.data.success)
           {
               message.success(res.data.message);
+              console.log(user.ethId);
+              const tx = await contract.sendHash(user.ethId, user.ethId, res.data.dataHash);
+              console.log(tx);
               console.log(res.data);
           }
           else{
