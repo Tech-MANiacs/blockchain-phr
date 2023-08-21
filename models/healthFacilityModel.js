@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const hospitalSchema = new mongoose.Schema(
+const healthFacilitySchema = new mongoose.Schema(
   {
     hospitalId: {
       type: String,
@@ -18,14 +18,6 @@ const hospitalSchema = new mongoose.Schema(
         type: String,
         required: true
     },
-    ethId:{
-        type: String,
-        required: [true, 'ethereum address is required']
-    },
-    privateKey:{
-        type: String,
-        required: [true, 'private key is required'],
-    },
     mobile:{
         type: String,
         required:[true,'mobile number is  required']
@@ -38,6 +30,6 @@ const hospitalSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const hospitalModel = mongoose.model("hospital", hospitalSchema);
+const healthFacilityModel = mongoose.model("healthFacilities", healthFacilitySchema);
 
-module.exports = hospitalModel;
+module.exports = healthFacilityModel;

@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const DoctorSearch = ({setCurrentDoctor, setOpen}) => {
+const HospitalSearch = ({setCurrentHospital, setOpen}) => {
 
   const [searchText, setSearchText] = useState('');
-  const [doctors, setDoctors] = useState([]);
+  const [hospitals, setHospitals] = useState([]);
 
   useEffect(() => {
-    const fetchDoctors = async () => {
+    const fetchHospitals = async () => {
       try {
-        const response = await axios.get(`/api/v1/doctor/getdoctors?firstName=${searchText}`);
-        setDoctors(response.data);
+        const response = await axios.get(`/api/v1/hospital/gethospitals?name=${searchText}`);
+        setHospitals(response.data);
       } catch (error) {
-        console.error('Error fetching doctors:', error);
+        console.error('Error fetching hospitals:', error);
       }
     };
 
     if (searchText) {
-      fetchDoctors();
+      fetchHospitals();
     } else {
-      setDoctors([]);
+      setHospitals([]);
     }
   }, [searchText]);
 
@@ -35,29 +35,29 @@ const DoctorSearch = ({setCurrentDoctor, setOpen}) => {
         />
 
         {/* Add overlay with search results */}
-        {doctors.length > 0 && (
+        {hospitals.length > 0 && (
           <div className="absolute z-10 mt-2 w-full bg-white border rounded-md shadow-lg">
             <ul>
-              {doctors.map((doctor) => (
+              {hospitals.map((hospital) => (
                 <li 
-                    key={doctor._id} 
+                    key={hospital._id} 
                     className="cursor-pointer hover:bg-gray-50 mb-2 p-2 border-b-2"  
                     onClick={() => {
-                        console.log("Selected doctor:", doctor); // Log the selected doctor
-                        setCurrentDoctor(doctor);
-                        setDoctors([]);
+                        console.log("Selected hospital:", hospital); // Log the selected hospital
+                        setCurrentHospital(hospital);
+                        setHospitals([]);
                         setOpen(true);
                       }}
                 >
-                    <strong className="pl-4">{"Dr. "} {doctor.firstName} {doctor.lastName}</strong><br />
+                    <strong className="pl-4">{hospital.name}</strong><br />
                     <div className="mt-2 text-sm">
                         <div className="flex font-semibold text-blue-700">
                             <div className="w-1/2 pl-4">Mobile</div>
-                            <div className="w-1/2 pl-4">Specialization</div>
+                            <div className="w-1/2 pl-4">City</div>
                         </div>
                         <div className="flex font-medium">
-                            <div className="w-1/2 pl-4">{doctor.mobile}</div>
-                            <div className="w-1/2 pl-4">{doctor.specialization}</div>
+                            <div className="w-1/2 pl-4">{hospital.mobile}</div>
+                            <div className="w-1/2 pl-4">{hospital.city}</div>
                         </div>
                     </div>
                 </li>
@@ -70,4 +70,4 @@ const DoctorSearch = ({setCurrentDoctor, setOpen}) => {
   );
 };
 
-export default DoctorSearch;
+export default HospitalSearch;

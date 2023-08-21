@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
 import '../styles/RegisterStyles.css'
-import { FaUserDoctor } from "react-icons/fa6";
-import {Button} from "@material-tailwind/react";
 import DoctorLoginCard from './DoctorLoginCard';
 import DoctorRegisterCard from './DoctorRegisterCard';
 const DoctorPortal = () => {

@@ -1,4 +1,4 @@
-const doctorModel = require("../models/doctorModel");
+const hospitalModel = require("../models/hospitalModel");
 // const appointmentModel = require("../models/appointmentModel");
 const userModel = require("../models/userModels");
 const healthInfoProviderModel = require("../models/healthInfoProviderModel");
@@ -6,18 +6,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const ethers   = require('ethers');
 const crypto   = require('crypto');
-
-function generateRandomAlphaNumeric(length) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-
-  for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      result += characters.charAt(randomIndex);
-  }
-
-  return result;
-}
+const healthFacilityModel = require("../models/healthFacilityModel");
+const patientModel = require("../models/patientModel");
 
 const encryptKey = async (secretKey, masterKey) => {
   // Key to be encrypted
@@ -38,10 +28,10 @@ const encryptKey = async (secretKey, masterKey) => {
 const registerController = async (req,res) =>{
     try {
         //fist we check if the user is an existing user, if he/she is then redirect them to the login page
-        const existingUser = await doctorModel.findOne({doctorId: req.body.doctorId});
+        const existingUser = await hospitalModel.findOne({hospitalId: req.body.hospitalId});
         if(existingUser)
         {
-            return res.status(200).send({success: true, message: 'User with this doctorId already exists'});
+            return res.status(200).send({success: true, message: 'User with this hospitalId already exists'});
         }
         //if new user
         //We store password hash in the db.
@@ -56,13 +46,13 @@ const registerController = async (req,res) =>{
 
         //replace original password with this hashed password in the request body and then store it in the database. 
         req.body.password = hashPassword;
-        const doctorObj = await healthInfoProviderModel.findOne({ doctorId : req.body.doctorId })
+        const hospitalObj = await healthFacilityModel.findOne({ hospitalId : req.body.hospitalId })
 
         const userData = {
           password : req.body.password,
-          email : doctorObj.email,
-          mobile : doctorObj.mobile,
-          isDoctor : true,
+          email : hospitalObj.email,
+          mobile : hospitalObj.mobile,
+          isHospital : true,
         }
         //now creating new user using user model
         const newUser = new userModel(userData);
@@ -75,21 +65,20 @@ const registerController = async (req,res) =>{
         const privateKey = wallet.privateKey;
         const encryptedPrivateKey = await encryptKey(privateKey, process.env.MASTER_KEY);
 
-        const doctorData = {
+        const hospitalData = {
           _id : newUser._id,
-          doctorId : req.body.doctorId,
-          firstName : doctorObj.firstName,
-          lastName : doctorObj.lastName,
-          email : doctorObj.email,
-          mobile : doctorObj.mobile,
+          hospitalId : req.body.hospitalId,
+          name : hospitalObj.name,
+          city : hospitalObj.city,
+          pinCode : hospitalObj.pinCode,
+          email : hospitalObj.email,
+          mobile : hospitalObj.mobile,
           ethId : ethereumAddress,
           privateKey : encryptedPrivateKey,
-          city : doctorObj.city,
-          address : doctorObj.address,
         }
 
-        const newDoctor = new doctorModel(doctorData);
-        await newDoctor.save();
+        const newHospital = new hospitalModel(hospitalData);
+        await newHospital.save();
 
         res.status(201).send({success: true, message: "Registered successfully"});
         
@@ -142,74 +131,13 @@ const loginController = async (req,res) =>{
   }
 };
 
-const getDoctorInfoController = async (req, res) => {
-  try {
 
-    //fetching doctor based on Id
-    const doctor = await doctorModel.findOne({ userId: req.body.userId });
-    res.status(200).send({
-      success: true,
-      message: "doctor data fetch success",
-      data: doctor,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      error,
-      message: "Error in Fetching Doctor Details",
-    });
-  }
-};
-
-// update doctor profile
-const updateProfileController = async (req, res) => {
+const checkHospitalId = async (req, res) => {
+  const { hospitalId } = req.body;
+  console.log(hospitalId);
   try {
-    const doctor = await doctorModel.findOneAndUpdate(
-      { userId: req.body.userId },
-      req.body
-    );
-    res.status(201).send({
-      success: true,
-      message: "Doctor Profile Updated",
-      data: doctor,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Doctor Profile Update issue",
-      error,
-    });
-  }
-};
-
-//get single doctor
-//controller to direct user to the booking page of a particular doctor
-const getDoctorByIdController = async (req, res) => {
-  try {
-    const doctor = await doctorModel.findOne({ _id: req.body.doctorId });
-    res.status(200).send({
-      success: true,
-      message: "Sigle Doctor Info Fetched",
-      data: doctor,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      error,
-      message: "Erro in Single Doctor info",
-    });
-  }
-};
-
-const checkDoctorId = async (req, res) => {
-  const { doctorId } = req.body;
-  console.log(doctorId);
-  try {
-      const doctor = await healthInfoProviderModel.findOne({ doctorId : doctorId });
-      if (doctor) {
+      const hospital = await healthFacilityModel.findOne({ hospitalId : hospitalId });
+      if (hospital) {
         return res.json({ exists: true });
       } else {
           return res.json({ exists: false });
@@ -220,32 +148,29 @@ const checkDoctorId = async (req, res) => {
   }
 };
 
-const getDoctors = async (req, res) => {
+const getHospitals = async (req, res) => {
   try {
-    const { firstName } = req.query;
+    const { name } = req.query;
 
-    if (!firstName) {
-      return res.status(400).json({ message: 'First name is required' });
+    if (!name) {
+      return res.status(400).json({ message: 'Name is required' });
     }
 
-    const doctors = await doctorModel.find({ firstName: { $regex: firstName, $options: 'i' } });
+    const hospitals = await hospitalModel.find({ name: { $regex: name, $options: 'i' } });
     
-    return res.status(200).json(doctors);
+    return res.status(200).json(hospitals);
   } catch (error) {
-    console.error('Error fetching doctors:', error);
+    console.error('Error fetching hospitals:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 
 module.exports = {
-  getDoctorInfoController,
-  updateProfileController,
-  getDoctorByIdController,
-  checkDoctorId,
+  checkHospitalId,
   registerController,
   loginController,
-  getDoctors
-  // doctorAppointmentsController,
+  getHospitals
+  // hospitalAppointmentsController,
   // updateStatusController,
 };

@@ -3,13 +3,6 @@ import HomePage from './pages/HomePage';
 import { useSelector } from 'react-redux';
 import Spinner from './components/Spinner';
 import ProtectedRoute from './components/ProtectedRoute';
-import ApplyDoctor from './pages/ApplyDoctor';
-import NotificationPage from './pages/NotificationPage';
-import Users from './pages/admin/Users';
-import Doctors from './pages/admin/Doctors';
-import Profile from './pages/doctor/Profile';
-import BookingPage from './pages/BookingPage';
-import DoctorAppointments from './pages/doctor/DoctorAppointments';
 import UserProfile from './pages/UserProfile';
 import LandingPage from './pages/LandingPage';
 import AccessManagement from './pages/AccessManagement';
@@ -31,42 +24,6 @@ function App() {
           <Spinner />
         ) : (
           <Routes>
-
-            
-            <Route path="/apply-doctor" element={
-              <ProtectedRoute>
-                <ApplyDoctor />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/users" element={
-              <ProtectedRoute>
-                <Users />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/doctors" element={
-              <ProtectedRoute>
-                <Doctors />
-              </ProtectedRoute>
-            } />
-
-            {/* because this will be dynamic i.e profile will shown based on the id and we defined it in layout in the profile doctor data */}
-            <Route path="/doctor/profile/:id" element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/doctor/book-appointment/:id" element={
-              <ProtectedRoute>
-                <BookingPage />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/notification" element={
-              <ProtectedRoute>
-                <NotificationPage />
-              </ProtectedRoute>
-            } />
 
             <Route path="/userprofile" element={
               <ProtectedRoute>
@@ -97,11 +54,6 @@ function App() {
               </ProtectedRoute>
             } />
 
-            <Route path="/doctor-appointments" element={
-              <ProtectedRoute>
-                <DoctorAppointments />
-              </ProtectedRoute>
-            } />
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <HomePage />

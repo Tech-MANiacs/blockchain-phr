@@ -22,12 +22,11 @@ app.use(morgan('dev'));
 //user routes
 app.use('/api/v1/user', require('./routes/userRoutes'));
 
-//admin routes
-app.use('/api/v1/admin', require('./routes/adminRoutes'));
-
 //doctor routes
 app.use('/api/v1/doctor', require('./routes/doctorRoutes'));
 
+//hospital routes
+app.use('/api/v1/hospital', require('./routes/hospitalRoutes'));
 
 
 //port

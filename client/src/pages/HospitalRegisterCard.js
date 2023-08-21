@@ -7,13 +7,13 @@ import axios from 'axios';
 import { useNavigate} from 'react-router-dom';
 import { Spinner } from "@material-tailwind/react";
 
-const UserRegisterCard = ({toggleCard}) => {
+const HospitalRegisterCard = ({toggleCard}) => {
    
     const navigate = useNavigate();
-    const [abhaId, setAbhaId] = useState("");
+    const [hospitalId, setHospitalId] = useState("");
     const [step, setStep] = useState(1); // Initial step is 1
     const passwordRef = useRef();
-    const abhaRef = useRef();
+    const hospitalRef = useRef();
     const reconfirmPasswordRef = useRef();
     const [passwordMatchError, setPasswordMatchError] = useState(false);
     const dispatch = useDispatch();
@@ -22,33 +22,33 @@ const UserRegisterCard = ({toggleCard}) => {
 
     const handleVerify = async () => {
 
-        if (abhaRef.current.value === null) {
-            message.error("Enter your ABHA ID");
+        if (hospitalRef.current.value === null) {
+            message.error("Enter your Healthcare Facility ID");
             return;
         }
 
         // Start the verification process
         setVerifying(true);
-        setAbhaId(abhaRef.current.value);
+        setHospitalId(hospitalRef.current.value);
         try {
-            const response = await axios.post('/api/v1/user/check-abhaid', { abhaId: abhaRef.current.value });
+            const response = await axios.post('/api/v1/hospital/check-hospitalid', { hospitalId: hospitalRef.current.value });
             console.log("gone");
             const { exists } = response.data;
 
             if (exists) {
-                // ABHA ID exists, you can set verification state and show a success message
+                // Healthcare Facility ID exists, you can set verification state and show a success message
                 setVerifying(false);
                 setIsVerified(true);
-                message.success('ABHA ID Verified');
-                // Optionally, you can set other user data from 'abha' object
+                message.success('Healthcare Facility ID Verified');
+                // Optionally, you can set other user data from 'hospital' object
             } else {
                 setVerifying(false);
-                message.error('Invalid ABHA ID');
+                message.error('Invalid Healthcare Facility ID');
             }
         } catch (error) {
             setVerifying(false);
             console.error(error);
-            message.error('Error verifying ABHA ID');
+            message.error('Error verifying Healthcare Facility ID');
         }
 
     };
@@ -60,12 +60,12 @@ const UserRegisterCard = ({toggleCard}) => {
             return;
         }
         setPasswordMatchError(false);
-        console.log(abhaId, passwordRef.current.value);
+        console.log(hospitalId, passwordRef.current.value);
 
         try {
             dispatch(showLoading());
-            const res = await axios.post('/api/v1/user/register', {
-                abhaId : abhaId,
+            const res = await axios.post('/api/v1/hospital/register', {
+                hospitalId : hospitalId,
                 password : passwordRef.current.value
             });
             dispatch(hideLoading());
@@ -73,10 +73,7 @@ const UserRegisterCard = ({toggleCard}) => {
             if(res.data.success)
             {
                 message.success(res.data.message);
-                console.log(res.data.ethId);
-                // const tx = await contract.giveAccess(res.data.ethId);
-                // console.log(tx);
-                navigate('/userPortal');
+                navigate('/hospitalPortal');
             }
             else{
                 message.error(res.data.message);
@@ -91,24 +88,24 @@ const UserRegisterCard = ({toggleCard}) => {
   return (
     <>
         {step === 1 && (
-            // Step 1: ABHA ID input
+            // Step 1: Healthcare Facility ID input
             <>
                 <div className='flex justify-center mb-4' >
                     <img src="healthid.png" alt="" className='w-[40%]' />
                 </div>
                 
                 <div className="mb-4">
-                    <label className="block font-bold text-md mb-2" htmlFor="email">
-                        Enter your ABHA Number
+                    <label className="block text-white font-bold text-md mb-2" htmlFor="email">
+                        Enter your Healthcare Facility ID
                     </label>
                     
                     <input
                         className="bg-white shadow-sm h-12 rounded w-full py-2 px-3 text-gray-600 focus:outline-none focus:shadow-outline"
-                        id="abha"
-                        name="abha"
+                        id="hospital"
+                        name="hospital"
                         type="text"
-                        placeholder="ABHA Number"
-                        ref={abhaRef}
+                        placeholder="Healthcare Facility ID"
+                        ref={hospitalRef}
                     />
                 </div>
                 <div className="mt-4 mb-12 flex">
@@ -140,16 +137,15 @@ const UserRegisterCard = ({toggleCard}) => {
                         </div>
                     </div>
                 </div>
-                <div className='items-center flex w-1/2 justify-start font-bold text-md text-blue-400'>
-                        Don't have an ABHA ID?
+                <div className='items-center flex justify-start font-bold text-md text-blue-200'>
+                        Don't have a Healthcare Facility ID?
                 </div>
                 <div className="mt-2 mb-12 flex space-x-2">
-                    <div className='w-1/2 text-md text-white font-semibold rounded-md cursor-pointer items-center justify-center flex bg-blue-500 hover:bg-blue-600 transition-colors duration-300' onClick={handleSubmit}>Create ABHA ID</div>
-                    <div className='flex justify-center font-semibold my-1 text-lg text-gray-500'>OR</div>
-                    <div className='w-1/2 text-md text-white font-semibold flex justify-center items-center rounded-md cursor-pointer bg-blue-500 hover:bg-blue-600 transition-colors duration-300' onClick={toggleCard}>Register with Aadhar</div>
+                    <div className='w-full py-1 text-md text-white font-semibold rounded-md cursor-pointer items-center justify-center flex bg-blue-500 hover:bg-blue-600 transition-colors duration-300'>Create Healthcare Facility ID</div>
+                   
                 </div>
                 
-                <div className="mt-4">
+                <div className="mt-4 border-t-2 pt-4">
                     <div className='w-full text-md text-white font-semibold px-4 text-center rounded-md cursor-pointer py-2 bg-green-500 hover:bg-green-600 transition-colors duration-300' onClick={toggleCard}>Already Registered? LOG IN</div>
                 </div>
             </>
@@ -162,7 +158,7 @@ const UserRegisterCard = ({toggleCard}) => {
                     </div>
                     
                     <div className="mb-4">
-                        <label className="block font-bold text-md mb-2" htmlFor="password">
+                        <label className="block font-bold text-md mb-2 text-white" htmlFor="password">
                             Create password
                         </label>
                         
@@ -176,7 +172,7 @@ const UserRegisterCard = ({toggleCard}) => {
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block font-bold text-md mb-2" htmlFor="reconfirmpassword">
+                        <label className="block font-bold text-md mb-2 text-white" htmlFor="reconfirmpassword">
                             Confirm Password
                         </label>
                         
@@ -205,4 +201,4 @@ const UserRegisterCard = ({toggleCard}) => {
   )
 }
 
-export default UserRegisterCard
+export default HospitalRegisterCard

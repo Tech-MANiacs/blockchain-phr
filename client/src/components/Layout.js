@@ -25,11 +25,6 @@ const Layout = ({ children }) => {
       path: "/dashboard",
       icon: "fa-solid fa-house",
     },
-    {
-      name: "Appointments",
-      path: "/appointment",
-      icon: "fa-solid fa-list",
-    },
 
     {
         //path is here dynamic

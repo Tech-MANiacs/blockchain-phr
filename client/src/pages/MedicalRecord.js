@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import axios from "axios";
 import { useFormik } from 'formik';
-import Layout from "../components/Layout";
 import {useSelector} from 'react-redux'
 import * as Yup from 'yup';
 import {useDispatch} from 'react-redux';
 import {showLoading,hideLoading} from '../redux/features/alertSlice';
 import { message } from 'antd';
 import {contract} from '../web3';
+import FileUploadComponent from "./FileUploadComponent";
 
 const initialValues = {
   bloodType: '',
@@ -18,6 +18,7 @@ const initialValues = {
   appointment: [{ doctorId: '', date: '', diagnosis: '', prescription: '', description: '', status: '' }],
   vaccinations: [{ name: '', date: '' }],
   surgeries: [{ name: '', date: '' }],
+  files: ['']
 };
 
 const validationSchema = Yup.object({
@@ -100,25 +101,6 @@ const MedicalRecord = () => {
     const updatedValues = [...formik.values[fieldName]];
     updatedValues.splice(index, 1);
     formik.setFieldValue(fieldName, updatedValues);
-  };
-
-  const getUserData = async () => {
-    // try {
-    //   const res = await axios.get(
-    //     "/api/v1/user/getAllDoctors",
-
-    //     {
-    //       headers: {
-    //         Authorization: "Bearer " + localStorage.getItem("token"),
-    //       },
-    //     }
-    //   );
-    //   if (res.data.success) {
-    //     setDoctors(res.data.data);
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    // }
   };
 
   return (
@@ -460,7 +442,39 @@ const MedicalRecord = () => {
                     </button>
                   </div>
                 </div>
-
+                <div className="bg-gray-200 w-full my-4 px-2 rounded-md font-medium py-1">Files</div>
+                  {formik.values.files.map((file, index) => (
+                    <div key={index} className="flex w-full pl-2 my-1 space-x-2">
+                      <div className="w-[10%] flex items-center">{index + 1}.</div>
+                      <div className="w-[70%]">
+                          <FileUploadComponent
+                            onFileChange={(uploadedFile) =>
+                              formik.setFieldValue(`files[${index}]`, uploadedFile)
+                            }
+                            file={file}
+                          />
+                      </div>
+                      
+                      {index >= 0 && (
+                        <button
+                          className="w-[20%] max-h-[40px] bg-blue-500 py-1 rounded-md text-white font-semibold"
+                          type="button"
+                          onClick={() => handleRemoveField('files', index)}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <div className="flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => handleAddField('files')}
+                      className="m-2 bg-green-500 text-white font-semibold px-4 py-1 text-sm rounded-md"
+                    >
+                      Add File
+                    </button>
+                  </div>
                 <div className="border-t-2 mt-4 w-full flex justify-center items-center">
                    <button type="submit" className="bg-blue-500 rounded-md text-white font-semibold py-1 px-2 mt-4">Submit</button>
                 </div>

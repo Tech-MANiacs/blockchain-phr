@@ -6,7 +6,7 @@ const {
   checkDoctorId,
   registerController,
   loginController,
-  getDoctors
+  getDoctors,
   // doctorAppointmentsController,
   // updateStatusController,
 } = require("../controllers/doctorCtrl");
@@ -29,14 +29,7 @@ router.post('/register', registerController);
 router.post('/login', loginController);
 
 router.get('/getdoctors', getDoctors);
-// //GET Appointments
-// router.get(
-//   "/doctor-appointments",
-//   authMiddleware,
-//   doctorAppointmentsController
-// );
 
-//POST Update Status
-// router.post("/update-status", authMiddleware, updateStatusController);
+
 
 module.exports = router;

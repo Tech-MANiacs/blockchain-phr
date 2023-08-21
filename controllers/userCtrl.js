@@ -12,6 +12,7 @@ const healthInfoProviderModel = require('../models/healthInfoProviderModel');
 const doctorModel = require('../models/doctorModel')
 const hospitalModel = require('../models/hospitalModel');
 const encryptPhrModel = require('../models/encryptPhrModel');
+const healthFacilityModel = require('../models/healthFacilityModel');
 
 const generateKeyFromPassword = async (userPassword) => {
   return new Promise((resolve, reject) => {
@@ -189,6 +190,7 @@ const authController = async (req, res) => {
     //finding user in the database with the userId which we created in the req.body in the authMiddleware
     const user = await userModel.findById({ _id: req.body.userId });
     //we dont want to return password to the browser, so will hide it after fetching it from the database
+
     user.password = undefined;
 
     let user2 = null;
@@ -197,6 +199,9 @@ const authController = async (req, res) => {
     }
     else if (user.isDoctor) {
       user2 = await doctorModel.findById({ _id: req.body.userId });
+    }
+    else {
+      user2 = await hospitalModel.findById({ _id: req.body.userId });
     }
     const mergedUser = { ...user.toObject(), ...user2.toObject() };
     if (!user) {
@@ -330,93 +335,6 @@ const getAllDoctors = async (req, res) => {
   }
 };
 
-//   //BOOK APPOINTMENT
-// const bookeAppointmnetController = async (req, res) => {
-//   try {
-//     req.body.date = moment(req.body.date, "DD-MM-YYYY").toISOString();
-//     req.body.time = moment(req.body.time, "HH:mm").toISOString();
-//     req.body.status = "pending";
-//     const newAppointment = new appointmentModel(req.body);
-//     await newAppointment.save();
-//     const user = await userModel.findOne({ _id: req.body.doctorInfo.userId });
-//     user.notification.push({
-//       type: "New-appointment-request",
-//       message: `A new Appointment Request from ${req.body.userInfo.name}`,
-//       onCLickPath: "/user/appointments",
-//     });
-//     await user.save();
-//     res.status(200).send({
-//       success: true,
-//       message: "Appointment Book succesfully",
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send({
-//       success: false,
-//       error,
-//       message: "Error While Booking Appointment",
-//     });
-//   }
-// };
-
-// booking bookingAvailabilityController
-// const bookingAvailabilityController = async (req, res) => {
-//   try {
-//     const date = moment(req.body.date, "DD-MM-YY").toISOString();
-//     const fromTime = moment(req.body.time, "HH:mm")
-//       .subtract(1, "hours")
-//       .toISOString();
-//     const toTime = moment(req.body.time, "HH:mm").add(1, "hours").toISOString();
-//     const doctorId = req.body.doctorId;
-//     const appointments = await appointmentModel.find({
-//       doctorId,
-//       date,
-//       time: {
-//         $gte: fromTime,
-//         $lte: toTime,
-//       },
-//     });
-//     if (appointments.length > 0) {
-//       return res.status(200).send({
-//         message: "Appointments not Availibale at this time",
-//         success: true,
-//       });
-//     } else {
-//       return res.status(200).send({
-//         success: true,
-//         message: "Appointments available",
-//       });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send({
-//       success: false,
-//       error,
-//       message: "Error In Booking",
-//     });
-//   }
-// };
-
-// const userAppointmentsController = async (req, res) => {
-//   try {
-//     const appointments = await appointmentModel.find({
-//       userId: req.body.userId,
-//     });
-//     res.status(200).send({
-//       success: true,
-//       message: "Users Appointments Fetch SUccessfully",
-//       data: appointments,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send({
-//       success: false,
-//       error,
-//       message: "Error In User Appointments",
-//     });
-//   }
-// };
-
 const checkAbhaId = async (req, res) => {
   const { abhaId } = req.body;
   console.log(abhaId);
@@ -476,7 +394,7 @@ function decryptData(derivedKey, encryptedFieldsArray) {
     decryptedDataString += decipher.final('utf-8');
 
     // Deserialize the decrypted string to original array if needed
-    decryptedData[encryptedField.fieldName] = ['allergies', 'medication', 'appointment', 'condition', 'vaccination', 'surgeries', 'familyHistory'].includes(encryptedField.fieldName)
+    decryptedData[encryptedField.fieldName] = ['allergies', 'medications', 'appointment', 'conditions', 'vaccinations', 'surgeries', 'familyHistory'].includes(encryptedField.fieldName)
       ? JSON.parse(decryptedDataString)
       : decryptedDataString;
   });
@@ -558,8 +476,17 @@ const storePhr = async (req, res) => {
 const fetchPhr = async (req, res) => {
 
   try {
-    const patient = await patientModel.findById(req.userId);
 
+    let patient;
+    console.log("hello query", req.query);
+    if(req.query.isUser === 'true'){
+      patient = await patientModel.findOne({ abhaId: req.query.abhaId });
+    }
+    else{
+      patient = await patientModel.findOne({ ethId: req.query.ethId });
+      console.log("patient", patient);
+    }
+    console.log(patient);
     const phrId = patient.phrId;
 
     //user's secret key in encrypted form
@@ -577,7 +504,7 @@ const fetchPhr = async (req, res) => {
 
     //decrypted phr
     const phr = decryptData(secretKey, encPhrData);
-
+    console.log(phr);
     return res.status(201).json({
       success: true,
       phr: phr,
@@ -594,6 +521,120 @@ const fetchPhr = async (req, res) => {
 
 }
 
+const updatePhr = async (req, res) => {
+  try {
+    console.log("update", req.body);
+    const data = { ...req.body };
+    
+    const patient = await patientModel.findById(req.body.userId);
+    const phrId = patient.phrId;
+    delete data.phrId;
+    delete data.userId;
+    console.log(data);
+    //master which is needed to decrypt the secret key stored in the database
+    const masterKey = process.env.MASTER_KEY;
+
+    //ecrypted key from database
+
+    const decryptedKey = decryptKey(patient.key, masterKey);
+
+    //encrypting data:
+    const encryptedFieldsArray = encryptData(decryptedKey, data);
+    // Create a new PHR document with encrypted fields
+    const phrDocument = await encryptPhrModel.findById(phrId);
+    if (!phrDocument) {
+      return res.status(404).json({
+        success: false,
+        message: "PHR document not found",
+      });
+    }
+
+    phrDocument.encryptedFields = encryptedFieldsArray;
+    await phrDocument.save();
+
+    const dataHash = hashEncryptedFieldsArray(encryptedFieldsArray);
+
+    return res.status(200).json({
+      success: true,
+      message: 'PHR data saved successfully',
+      dataHash: dataHash,
+    });
+
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while saving PHR data',
+    });
+  }
+}
+
+const getDoctorsWithAccess = async (req, res) => {
+
+  try {
+    const doctors = await doctorModel.find();
+
+    return res.status(201).json({
+      success: true,
+      doctors: doctors,
+      isDoctor: true,
+      isHospital: false
+    })
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "error fetching phr",
+    })
+  }
+
+}
+
+const getHospitalsWithAccess = async (req, res) => {
+
+  try {
+    const hospitals = await hospitalModel.find();
+
+    return res.status(201).json({
+      success: true,
+      hospitals: hospitals,
+      isDoctor: false,
+      isHospital: true
+    })
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "error fetching phr",
+    })
+  }
+
+}
+
+const getUser = async (req, res) => {
+  try {
+    const { abhaId } = req.query;
+
+    if (!abhaId) {
+      return res.status(400).json({ message: 'abhaId is required' });
+    }
+
+    const patient = await patientModel.findOne({ abhaId: abhaId });
+    
+    patient.key = undefined;
+    patient.privateKey = undefined;
+    patient.phrId = undefined;
+    console.log(patient);
+    return res.status(200).json(patient);
+  } catch (error) {
+    console.error('Error fetching hospitals:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
 module.exports = {
   loginController,
   registerController,
@@ -605,6 +646,10 @@ module.exports = {
   checkAbhaId,
   storePhr,
   fetchPhr,
+  updatePhr,
+  getDoctorsWithAccess,
+  getHospitalsWithAccess,
+  getUser
   // bookeAppointmnetController,
   // bookingAvailabilityController,
   // userAppointmentsController,

@@ -12,6 +12,10 @@ const {loginController,
     checkAbhaId,
     storePhr,
     fetchPhr,
+    updatePhr,
+    getDoctorsWithAccess,
+    getHospitalsWithAccess,
+    getUser
     // bookeAppointmnetController,
     //bookingAvailabilityController,
     // userAppointmentsController
@@ -50,13 +54,22 @@ router.post(
 
 
 //GET ALL DOC
+router.get('/getDoctorsWithAccess', getDoctorsWithAccess)
+
+router.get('/getHospitalsWithAccess', getHospitalsWithAccess)
+
 router.get('/getAllDoctors', authMiddleware, getAllDoctors)
 
 router.post('/check-abhaid', checkAbhaId);
 
 router.post('/storephr', storePhr);
 
+router.post('/updatephr', updatePhr);
+
 router.get('/fetchphr', fetchPhr);
+
+router.get('/getuser', getUser);
+
 // //BOOK APPOINTMENT
 // router.post('/book-appointment', authMiddleware, bookeAppointmnetController);
 

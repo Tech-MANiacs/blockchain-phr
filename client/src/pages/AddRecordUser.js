@@ -1,8 +1,6 @@
 import React from "react";
 import axios from "axios";
-import Layout from "../components/Layout";
 import { useFormik } from 'formik';
-import {useSelector} from 'react-redux'
 import * as Yup from 'yup';
 import {useDispatch} from 'react-redux';
 import {showLoading,hideLoading} from '../redux/features/alertSlice';
@@ -28,21 +26,21 @@ const initialValues = {
     )
   });
 
-const AddRecord = () => {
+const AddRecordUser = ({currentPatient, doctor, phrID}) => {
     const dispatch = useDispatch();
-    const {user} = useSelector(state=>state.user)
 
     const formik = useFormik({
         initialValues,
         validationSchema,
         onSubmit: async (values) => {
-          values.userId = user._id;
+          values.userId = currentPatient._id;
           console.log(values);
           try {
                 dispatch(showLoading());
+                console.log(currentPatient, doctor);
                 const result = await axios.get('/api/v1/user/fetchphr', {
                     params: {
-                    abhaId: user.abhaId,
+                    abhaId: currentPatient.abhaId,
                     isUser: true,
                     }
                 });
@@ -53,17 +51,16 @@ const AddRecord = () => {
 
                 const phr = result.data.phr;
                 phr.appointment = phr.appointment.concat(values.appointment);
-                console.log("phr", phr);
-                const res = await axios.post('/api/v1/user/updatephr', {...phr, phrId: user.phrId, userId: user._id});
+                console.log("phr", phr, phrID, currentPatient._id);
+                const res = await axios.post('/api/v1/user/updatephr', {...phr, phrId: phrID, userId: currentPatient._id});
                 dispatch(hideLoading());
                 
                 if(res.data.success)
                 {
+                    
+                    console.log(currentPatient.ethId);
+                    await contract.sendHash(currentPatient.ethId, doctor.ethId, res.data.dataHash);
                     message.success(res.data.message);
-                    console.log(user.ethId);
-                    const tx = await contract.sendHash(user.ethId, user.ethId, res.data.dataHash);
-                    console.log(tx);
-                    console.log(res.data);
                 }
                 else{
                     message.error(res.data.message);
@@ -86,10 +83,8 @@ const AddRecord = () => {
         formik.setFieldValue(fieldName, updatedValues);
       };
 
+   
     return (
-        <Layout>
-            <div className="flex justify-center w-full">
-            <div className="h-fit w-[70%] rounded-xl bg-white shadow-sm">
               <form onSubmit={formik.handleSubmit} className="w-full p-4">
                 
                 {/* Appointment */}
@@ -208,12 +203,8 @@ const AddRecord = () => {
                 </div>
                 
               </form>
-              
-          </div>
-            </div>
-            
-        </Layout>
+
     );
 };
 
-export default AddRecord;
+export default AddRecordUser;
