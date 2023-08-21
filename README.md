@@ -2,7 +2,7 @@
 
 A Blockchain based Personal Health Record Management System, to overcome the shortcomings of traditional Electronic Health Records. This serves to address the issues of privacy of records and interoperability.
 
-# Application architecture and Working demo
+## Application architecture and Working demo
 https://www.youtube.com/watch?v=usKPtkdnRXs
 
 ## Smart Contract
