@@ -87,6 +87,7 @@ const HomePage = () => {
 
         for (const doctor of doctors) {
           const hasAccess = await checkPeopleAccess(doctor);
+          console.log(hasAccess);
           if (hasAccess) {
             doctor.isDoctor = res.data.isDoctor;
             doctor.isHospital = res.data.isHospital;

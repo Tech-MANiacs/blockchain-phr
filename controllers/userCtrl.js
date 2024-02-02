@@ -573,7 +573,7 @@ const getDoctorsWithAccess = async (req, res) => {
 
   try {
     const doctors = await doctorModel.find();
-
+    console.log(doctors);
     return res.status(201).json({
       success: true,
       doctors: doctors,

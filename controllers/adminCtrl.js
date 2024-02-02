@@ -1,8 +1,6 @@
 const doctorModel = require("../models/doctorModel");
 const userModel = require("../models/userModels");
 
-
-
 //getting hold of every user from the database
 const getAllUsersController = async (req, res) => {
   try {
